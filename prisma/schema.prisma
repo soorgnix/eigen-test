@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Books {
+  id        Int             @id @default(autoincrement())
+  code      String
+  title     String
+  author    String
+  stock     Int
+  createdAt DateTime        @default(now())
+  version   Int
+  borrow    Borrows[]
+}
+
+model Members {
+  id            Int             @id @default(autoincrement())
+  code          String
+  name          String
+  lockedAt      DateTime?
+  lockReleaseAt DateTime?
+  borrowCount   Int
+  createdAt     DateTime        @default(now())
+  version       Int
+  borrow        Borrows[]
+}
+
+model Borrows {
+  id         Int  @id @default(autoincrement())
+  book       Books     @relation(fields: [bookId], references: [id])
+  bookId     Int
+  member     Members   @relation(fields: [memberId], references: [id])
+  memberId   Int
+  borrowAt   DateTime? @default(now())
+  returnAt   DateTime?
+  isReturned Boolean
+  returnedAt DateTime?
+
+  @@index([bookId])
+  @@index([memberId])
+}
